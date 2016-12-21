@@ -732,6 +732,28 @@
       (is (= 1 (:click (get-runner))))
       (run-on state :hq))))
 
+(deftest ruhr-valley-Enhanced-Login-Protocol-edge-case
+  ;; Ruhr Valley - As an additional cost to make a run on this server, the Runner must spend a click.
+  (do-game
+    (new-game (default-corp [(qty "Ruhr Valley" 1) (qty "Enhanced Login Protocol" 1) (qty "Hedge Fund" 1)])
+              (default-runner))
+    (play-from-hand state :corp "Hedge Fund")
+    (play-from-hand state :corp "Ruhr Valley" "HQ")
+    (play-from-hand state :corp "Enhanced Login Protocol")
+    (take-credits state :corp)
+    (let [ruhr (get-content state :hq 0)]
+      (core/rez state :corp ruhr)
+      (is (= 4 (:click (get-runner))))
+      (run-empty-server state "Archives")
+      (run-jack-out state)
+      (is (= 2 (:click (get-runner))))
+      (is (= true (core/can-run-server? state "HQ"))  "Runner can run, still has two clicks")
+      (run-on state :hq)
+      (run-jack-out state))
+    (is (= 0 (:click (get-runner))))
+    )
+  )
+
 (deftest ryon-knight
   ;; Ryon Knight - Trash during run to do 1 brain damage if Runner has no clicks remaining
   (do-game
